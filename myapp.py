@@ -13,12 +13,24 @@ st.title("💬 CDAC AI BATCH PROJECT DEMO")
 st.write("A simple Streamlit app to demo RAG. Answers queries related to common occuring diseases in India"
 " Anaemia,Asthma,Covid-19,Dengue,Diabetes,HyperTension,Malaria,Tuberculosis and Typhoid.")
 user_choice = st.toggle("Use Open knowledge", value=False) # Default to False (No)
+current_dir = Path.cwd()
 
-current_dir = Path.cwd() #Get Current Working Directory
-vector_dir = current_dir / os.getenv("VECTOR_DIR") # Read the Vector DB Base directory path 
-knn=int(os.getenv("KNN")) #Neareset Neighbours for similarity search
-gpt_model_creativity=int(os.getenv("HF_GPT_MODEL_CREATIVITY")) #Chat Model to creativity
-gpt_model_new_tokens=int(os.getenv("HF_MAX_NEW_TOKENS")) #New tokens for gpt model
+vector_dir_env = os.getenv("VECTOR_DIR")
+
+# If VECTOR_DIR is an absolute path → use it directly
+# If it's a relative path → resolve it from current_dir
+if vector_dir_env:
+    vector_dir = Path(vector_dir_env)
+    if not vector_dir.is_absolute():
+        vector_dir = current_dir / vector_dir
+else:
+    # Fallback to your known ChromaDB directory
+    vector_dir = current_dir / "ChromaDB"
+
+knn = int(os.getenv("KNN", 3))
+gpt_model_creativity = int(os.getenv("HF_GPT_MODEL_CREATIVITY", 0))
+gpt_model_new_tokens = int(os.getenv("HF_MAX_NEW_TOKENS", 512))
+
 
 
 @st.cache_resource(show_spinner=False)  # Add the caching decorator
